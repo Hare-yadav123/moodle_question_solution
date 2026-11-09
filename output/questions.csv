@@ -1,0 +1,11 @@
+﻿Question No.,Question Type,Question Text,Option A,Option B,Option C,Option D,Correct Answer,Marks,Difficulty
+1,multiple_choice,"Which Python data type is commonly used to store an ordered, changeable collection?",tuple,list,str,int,B,1,Easy
+2,true_false,Python dictionaries store data as key-value pairs.,True,False,,,True,1,Easy
+3,multiple_choice,Which SQL clause is used to filter grouped results after aggregation?,WHERE,ORDER BY,HAVING,LIMIT,C,2,Medium
+4,true_false,XML tags are case-sensitive.,True,False,,,True,1,Easy
+5,multiple_choice,Which Python standard-library module can parse XML documents?,pathlib,xml.etree.ElementTree,statistics,secrets,B,2,Medium
+6,multiple_choice,Which file format is used by Moodle to import questions into a question bank?,Moodle XML,PNG,MP3,EXE,A,2,Medium
+7,true_false,A SQL PRIMARY KEY is intended to uniquely identify each row in a table.,True,False,,,True,1,Easy
+8,multiple_choice,"If a script processes 5 files per minute, how many files can it process in 8 minutes at the same rate?",13,35,40,45,C,2,Medium
+9,multiple_choice,"For the expression below, what is the value of x when 2x + 6 = 14? [Equation: 2x + 6 = 14]",2,3,4,5,C,3,Hard
+10,multiple_choice,Refer to the diagram below. Which sequence best describes the flow shown? [Diagram: output/images/image_ccea0c5843fc.png],Output → Input → Python,Input → Python → Output,Python → Output → Input,Input → Output → Python,B,3,Hard

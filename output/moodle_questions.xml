@@ -1,0 +1,215 @@
+<?xml version='1.0' encoding='utf-8'?>
+<quiz>
+  <question type="multichoice">
+    <single>true</single>
+    <shuffleanswers>true</shuffleanswers>
+    <answernumbering>abc</answernumbering>
+    <showstandardinstruction>0</showstandardinstruction>
+    <correctfeedback />
+    <partiallycorrectfeedback />
+    <incorrectfeedback />
+    <shownumcorrect>1</shownumcorrect>
+    <answer fraction="0" format="html">
+      <text>tuple</text>
+      <feedback />
+    </answer>
+    <answer fraction="100" format="html">
+      <text>list</text>
+      <feedback />
+    </answer>
+    <answer fraction="0" format="html">
+      <text>str</text>
+      <feedback />
+    </answer>
+    <answer fraction="0" format="html">
+      <text>int</text>
+      <feedback />
+    </answer>
+  </question>
+  <question type="truefalse">
+    <answer fraction="100">
+      <text>true</text>
+      <feedback />
+    </answer>
+    <answer fraction="0">
+      <text>false</text>
+      <feedback />
+    </answer>
+  </question>
+  <question type="multichoice">
+    <single>true</single>
+    <shuffleanswers>true</shuffleanswers>
+    <answernumbering>abc</answernumbering>
+    <showstandardinstruction>0</showstandardinstruction>
+    <correctfeedback />
+    <partiallycorrectfeedback />
+    <incorrectfeedback />
+    <shownumcorrect>1</shownumcorrect>
+    <answer fraction="0" format="html">
+      <text>WHERE</text>
+      <feedback />
+    </answer>
+    <answer fraction="0" format="html">
+      <text>ORDER BY</text>
+      <feedback />
+    </answer>
+    <answer fraction="100" format="html">
+      <text>HAVING</text>
+      <feedback />
+    </answer>
+    <answer fraction="0" format="html">
+      <text>LIMIT</text>
+      <feedback />
+    </answer>
+  </question>
+  <question type="truefalse">
+    <answer fraction="100">
+      <text>true</text>
+      <feedback />
+    </answer>
+    <answer fraction="0">
+      <text>false</text>
+      <feedback />
+    </answer>
+  </question>
+  <question type="multichoice">
+    <single>true</single>
+    <shuffleanswers>true</shuffleanswers>
+    <answernumbering>abc</answernumbering>
+    <showstandardinstruction>0</showstandardinstruction>
+    <correctfeedback />
+    <partiallycorrectfeedback />
+    <incorrectfeedback />
+    <shownumcorrect>1</shownumcorrect>
+    <answer fraction="0" format="html">
+      <text>pathlib</text>
+      <feedback />
+    </answer>
+    <answer fraction="100" format="html">
+      <text>xml.etree.ElementTree</text>
+      <feedback />
+    </answer>
+    <answer fraction="0" format="html">
+      <text>statistics</text>
+      <feedback />
+    </answer>
+    <answer fraction="0" format="html">
+      <text>secrets</text>
+      <feedback />
+    </answer>
+  </question>
+  <question type="multichoice">
+    <single>true</single>
+    <shuffleanswers>true</shuffleanswers>
+    <answernumbering>abc</answernumbering>
+    <showstandardinstruction>0</showstandardinstruction>
+    <correctfeedback />
+    <partiallycorrectfeedback />
+    <incorrectfeedback />
+    <shownumcorrect>1</shownumcorrect>
+    <answer fraction="100" format="html">
+      <text>Moodle XML</text>
+      <feedback />
+    </answer>
+    <answer fraction="0" format="html">
+      <text>PNG</text>
+      <feedback />
+    </answer>
+    <answer fraction="0" format="html">
+      <text>MP3</text>
+      <feedback />
+    </answer>
+    <answer fraction="0" format="html">
+      <text>EXE</text>
+      <feedback />
+    </answer>
+  </question>
+  <question type="truefalse">
+    <answer fraction="100">
+      <text>true</text>
+      <feedback />
+    </answer>
+    <answer fraction="0">
+      <text>false</text>
+      <feedback />
+    </answer>
+  </question>
+  <question type="multichoice">
+    <single>true</single>
+    <shuffleanswers>true</shuffleanswers>
+    <answernumbering>abc</answernumbering>
+    <showstandardinstruction>0</showstandardinstruction>
+    <correctfeedback />
+    <partiallycorrectfeedback />
+    <incorrectfeedback />
+    <shownumcorrect>1</shownumcorrect>
+    <answer fraction="0" format="html">
+      <text>13</text>
+      <feedback />
+    </answer>
+    <answer fraction="0" format="html">
+      <text>35</text>
+      <feedback />
+    </answer>
+    <answer fraction="100" format="html">
+      <text>40</text>
+      <feedback />
+    </answer>
+    <answer fraction="0" format="html">
+      <text>45</text>
+      <feedback />
+    </answer>
+  </question>
+  <question type="multichoice">
+    <single>true</single>
+    <shuffleanswers>true</shuffleanswers>
+    <answernumbering>abc</answernumbering>
+    <showstandardinstruction>0</showstandardinstruction>
+    <correctfeedback />
+    <partiallycorrectfeedback />
+    <incorrectfeedback />
+    <shownumcorrect>1</shownumcorrect>
+    <answer fraction="0" format="html">
+      <text>2</text>
+      <feedback />
+    </answer>
+    <answer fraction="0" format="html">
+      <text>3</text>
+      <feedback />
+    </answer>
+    <answer fraction="100" format="html">
+      <text>4</text>
+      <feedback />
+    </answer>
+    <answer fraction="0" format="html">
+      <text>5</text>
+      <feedback />
+    </answer>
+  </question>
+  <question type="multichoice">
+    <single>true</single>
+    <shuffleanswers>true</shuffleanswers>
+    <answernumbering>abc</answernumbering>
+    <showstandardinstruction>0</showstandardinstruction>
+    <correctfeedback />
+    <partiallycorrectfeedback />
+    <incorrectfeedback />
+    <shownumcorrect>1</shownumcorrect>
+    <answer fraction="0" format="html">
+      <text>Output → Input → Python</text>
+      <feedback />
+    </answer>
+    <answer fraction="100" format="html">
+      <text>Input → Python → Output</text>
+      <feedback />
+    </answer>
+    <answer fraction="0" format="html">
+      <text>Python → Output → Input</text>
+      <feedback />
+    </answer>
+    <answer fraction="0" format="html">
+      <text>Input → Output → Python</text>
+      <feedback />
+    </answer>
+  </question>
+</quiz>
