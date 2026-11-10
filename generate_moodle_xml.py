@@ -22,12 +22,15 @@ XML_FILE = OUTPUT_DIR / "moodle_questions.xml"
 
 
 def add_text(parent, tag, value):
+    """Add text element to parent element with tag and value."""
     element = ET.SubElement(parent, tag)
     element.text = "" if value is None else str(value)
+    print("element:",element.tag, element.text)
     return element
 
 
 def read_questions_from_database():
+    """Read questions in python from SQLite database. and convrt in python list of dict """
     if not DB_FILE.exists():
         raise FileNotFoundError(
             f"Database not found: {DB_FILE}. Run extract_questions.py first."
@@ -71,7 +74,9 @@ def normalize_correct_option(question):
 
 
 def question_html(question):
-    """Build safe HTML; return HTML plus image files to embed."""
+    """Build safe HTML; return HTML plus image files to embed.
+    This function converts question text, equations, and images into HTML format for Moodle XML generation.
+    """
     text = str(question.get("question_text") or "").strip()
     equation = question.get("equation")
 
@@ -112,6 +117,7 @@ def question_html(question):
 
 
 def add_embedded_files(questiontext, files):
+    """This function embeds image files into Moodle XML by converting their binary data into Base64 text."""
     for filename, content in files:
         file_element = ET.SubElement(
             questiontext,
@@ -122,6 +128,7 @@ def add_embedded_files(questiontext, files):
 
 
 def build_multichoice(quiz, question):
+    """Build a Moodle multiple-choice question with its answer options."""
     number = question["question_no"]
     node = ET.SubElement(quiz, "question", {"type": "multichoice"})
     add_text(node, "single", "true")
