@@ -82,25 +82,29 @@ def extract_images(paragraph):
     saved_paths = []
 
     for blip in paragraph._p.xpath(".//a:blip"):
-        relationship_id = blip.get(qn("r:embed"))
-        if not relationship_id:
+        try:
+            relationship_id = blip.get(qn("r:embed"))
+            if not relationship_id:
+                continue
+
+            image_part = paragraph.part.related_parts.get(relationship_id)
+            if image_part is None:
+                continue
+
+            image = image_part.image
+            digest = hashlib.sha256(image.blob).hexdigest()[:12]
+            filename = f"image_{digest}.{image.ext}"
+            image_path = IMAGE_DIR / filename
+
+            if not image_path.exists():
+                image_path.write_bytes(image.blob)
+
+            relative_path = image_path.relative_to(BASE_DIR).as_posix()
+            if relative_path not in saved_paths:
+                saved_paths.append(relative_path)
+        except (ValueError, AttributeError, KeyError):
+            print("Failed to extract an image from paragraph.")
             continue
-
-        image_part = paragraph.part.related_parts.get(relationship_id)
-        if image_part is None:
-            continue
-
-        image = image_part.image
-        digest = hashlib.sha256(image.blob).hexdigest()[:12]
-        filename = f"image_{digest}.{image.ext}"
-        image_path = IMAGE_DIR / filename
-
-        if not image_path.exists():
-            image_path.write_bytes(image.blob)
-
-        relative_path = image_path.relative_to(BASE_DIR).as_posix()
-        if relative_path not in saved_paths:
-            saved_paths.append(relative_path)
 
     return saved_paths
 
@@ -108,22 +112,27 @@ def extract_images(paragraph):
 def read_document(parent):
     """Return ordered records; table cell paragraphs are also supported."""
     records = []
-    for block in iter_block_items(parent):
-        if isinstance(block, Paragraph):
-            records.append({
-                "text": re.sub(r"\s+", " ", block.text).strip(),
-                "images": extract_images(block),
-            })
-            
-        else:
-            for row in block.rows:
-                for cell in row.cells:
-                    records.extend(read_document(cell))
+    try:
+        for block in iter_block_items(parent):
+            if isinstance(block, Paragraph):
+                records.append({
+                    "text": re.sub(r"\s+", " ", block.text).strip(),
+                    "images": extract_images(block),
+                })
+                
+            else:
+                for row in block.rows:
+                    for cell in row.cells:
+                        records.extend(read_document(cell))
 
-    # print("*"*20)
-    # print("records all: ",records)
-    # print("*"*20)
-    return records
+        # print("*"*20)
+        # print("records all: ",records)
+        # print("*"*20)
+        return records
+    except Exception as e:
+        raise RuntimeError(
+            "Failed while reading DOCX paragraphs or tables."
+        )from e
 
 # ---------------------------------------------------------------------
 # 3. Question data helpers
@@ -229,41 +238,47 @@ def extract_questions(records):
     questions = []
     current_question = None
 
-    for record in records:
-        line = record["text"]
+    try:
+        for record in records:
+            line = record["text"]
 
-        # Search the actual DOCX paragraph, not a hard-coded test string.
-        header_match = HEADER_RE.search(line)
+            # Search the actual DOCX paragraph, not a hard-coded test string.
+            header_match = HEADER_RE.search(line)
 
-        if header_match:
+            if header_match:
+                if current_question is not None:
+                    questions.append(current_question)
+
+                current_question = create_question(header_match)
+
+                # Important: some DOCX files put Q number, question text and
+                # answer in one paragraph (for example Q2 and Q4 in this file).
+                remaining_text = line[header_match.end():].strip()
+                if remaining_text:
+                    print("Current Question:", current_question)
+                    print("Current Question Type:", type(current_question))
+                    print("Remaining Text:", remaining_text)
+                    process_question_content(current_question, remaining_text)
+
+            elif current_question is not None:
+                process_question_content(current_question, line)
+
+            # Attach images even when the paragraph contains no text.
             if current_question is not None:
-                questions.append(current_question)
+                for image_path in record["images"]:
+                    if image_path not in current_question["image_reference"]:
+                        current_question["image_reference"].append(image_path)
 
-            current_question = create_question(header_match)
-
-            # Important: some DOCX files put Q number, question text and
-            # answer in one paragraph (for example Q2 and Q4 in this file).
-            remaining_text = line[header_match.end():].strip()
-            if remaining_text:
-                print("Current Question:", current_question)
-                print("Current Question Type:", type(current_question))
-                print("Remaining Text:", remaining_text)
-                process_question_content(current_question, remaining_text)
-
-        elif current_question is not None:
-            process_question_content(current_question, line)
-
-        # Attach images even when the paragraph contains no text.
         if current_question is not None:
-            for image_path in record["images"]:
-                if image_path not in current_question["image_reference"]:
-                    current_question["image_reference"].append(image_path)
+            questions.append(current_question)
 
-    if current_question is not None:
-        questions.append(current_question)
+        # print("q1",questions)
+        return questions
 
-    # print("q1",questions)
-    return questions
+    except (KeyError, TypeError, AttributeError, ValueError) as e:
+        raise RuntimeError(
+            "Failed to extract questions from document records."
+        ) from e
 
 
 # ---------------------------------------------------------------------
@@ -369,67 +384,75 @@ DATABASE_FILE = OUTPUT_DIR / "questions.db"
 
 def create_database():
     """Create SQLite database and its questions table if needed."""
-    with sqlite3.connect(DATABASE_FILE) as connection:
-        connection.execute("""
-            CREATE TABLE IF NOT EXISTS questions (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                question_no INTEGER NOT NULL UNIQUE,
-                question_type TEXT NOT NULL,
-                question_text TEXT NOT NULL,
-                option_a TEXT,
-                option_b TEXT,
-                option_c TEXT,
-                option_d TEXT,
-                correct_answer TEXT NOT NULL,
-                marks INTEGER NOT NULL CHECK (marks >= 0),
-                difficulty TEXT NOT NULL
-                    CHECK (difficulty IN ('Easy', 'Medium', 'Hard')),
-                equation TEXT,
-                image_reference TEXT,
-                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-            )
-        """)
-        connection.commit()
+    try:
+        with sqlite3.connect(DATABASE_FILE) as connection:
+            connection.execute("""
+                CREATE TABLE IF NOT EXISTS questions (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    question_no INTEGER NOT NULL UNIQUE,
+                    question_type TEXT NOT NULL,
+                    question_text TEXT NOT NULL,
+                    option_a TEXT,
+                    option_b TEXT,
+                    option_c TEXT,
+                    option_d TEXT,
+                    correct_answer TEXT NOT NULL,
+                    marks INTEGER NOT NULL CHECK (marks >= 0),
+                    difficulty TEXT NOT NULL
+                        CHECK (difficulty IN ('Easy', 'Medium', 'Hard')),
+                    equation TEXT,
+                    image_reference TEXT,
+                    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+            connection.commit()
+    except sqlite3.Error:
+        print("Failed to create database.")
+
 
 
 def save_to_database(questions):
     """Save new questions and update existing question numbers."""
-    create_database()
-    rows = [
-        (
-            q["question_no"], q["question_type"], q["question_text"],
-            q["option_a"], q["option_b"], q["option_c"], q["option_d"],
-            q["correct_answer"], q["marks"], q["difficulty"], q["equation"],
-            json.dumps(q["image_reference"], ensure_ascii=False),
-        )
-        for q in questions
-    ]
-
-    with sqlite3.connect(DATABASE_FILE) as connection:
-        connection.executemany("""
-            INSERT INTO questions (
-                question_no, question_type, question_text,
-                option_a, option_b, option_c, option_d,
-                correct_answer, marks, difficulty, equation, image_reference
+    try:
+        create_database()
+        rows = [
+            (
+                q["question_no"], q["question_type"], q["question_text"],
+                q["option_a"], q["option_b"], q["option_c"], q["option_d"],
+                q["correct_answer"], q["marks"], q["difficulty"], q["equation"],
+                json.dumps(q["image_reference"], ensure_ascii=False),
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT(question_no) DO UPDATE SET
-                question_type = excluded.question_type,
-                question_text = excluded.question_text,
-                option_a = excluded.option_a,
-                option_b = excluded.option_b,
-                option_c = excluded.option_c,
-                option_d = excluded.option_d,
-                correct_answer = excluded.correct_answer,
-                marks = excluded.marks,
-                difficulty = excluded.difficulty,
-                equation = excluded.equation,
-                image_reference = excluded.image_reference
-        """, rows)
-        connection.commit()
+            for q in questions
+        ]
 
-    print(f"SQLite database updated: {DATABASE_FILE}")
-    print(f"Questions saved/updated: {len(rows)}")
+        with sqlite3.connect(DATABASE_FILE) as connection:
+            connection.executemany("""
+                INSERT INTO questions (
+                    question_no, question_type, question_text,
+                    option_a, option_b, option_c, option_d,
+                    correct_answer, marks, difficulty, equation, image_reference
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(question_no) DO UPDATE SET
+                    question_type = excluded.question_type,
+                    question_text = excluded.question_text,
+                    option_a = excluded.option_a,
+                    option_b = excluded.option_b,
+                    option_c = excluded.option_c,
+                    option_d = excluded.option_d,
+                    correct_answer = excluded.correct_answer,
+                    marks = excluded.marks,
+                    difficulty = excluded.difficulty,
+                    equation = excluded.equation,
+                    image_reference = excluded.image_reference
+            """, rows)
+            connection.commit()
+
+        print(f"SQLite database updated: {DATABASE_FILE}")
+        print(f"Questions saved/updated: {len(rows)}")
+
+    except sqlite3.Error:
+        print("Failed to save questions to database")
 
 # ---------------------------------------------------------------------
 # 7. Main
